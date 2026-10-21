@@ -1,1 +1,64 @@
 
+name: Compiler Ziggy pour Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - principal
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        working-directory: Ziggy
+
+    steps:
+      - name: Recuperer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Ziggy/requirements.txt
+
+      - name: Installer les dependances
+        run: |
+          python -m pip install --upgrade pip
+          if (Test-Path requirements.txt) {
+            pip install -r requirements.txt
+          }
+          pip install pyinstaller
+
+      - name: Verifier les fichiers
+        run: |
+          Get-ChildItem
+          if (!(Test-Path "*.spec")) {
+            Write-Host "Aucun fichier .spec trouve a la racine de Ziggy"
+          }
+
+      - name: Compiler Ziggy
+        shell: pwsh
+        run: |
+          $spec = Get-ChildItem -Filter "*.spec" -Recurse | Select-Object -First 1
+          if ($spec) {
+            pyinstaller --noconfirm --clean $spec.FullName
+          } else {
+            $py = Get-ChildItem -Filter "main.py" -Recurse | Select-Object -First 1
+            if (!$py) { throw "Fichier .spec ou main.py introuvable" }
+            pyinstaller --noconfirm --clean --onefile --name Ziggy $py.FullName
+          }
+
+      - name: Publier le fichier EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Ziggy-Windows
+          path: |
+            Ziggy/dist/**/*.exe
+            Ziggy/dist/*.exe
+          if-no-files-found: error
+
