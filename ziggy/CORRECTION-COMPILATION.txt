@@ -1,0 +1,6 @@
+Correction appliquée à ziggy.spec :
+- les chemins des ressources sont résolus depuis le dossier de ziggy.spec ;
+- .env.example est ajouté s’il existe, mais son absence ne bloque plus PyInstaller ;
+- static et assets restent obligatoires et leur absence est signalée clairement.
+
+Remplace les fichiers du dépôt GitHub par ceux de cette archive, puis relance le workflow GitHub Actions.
