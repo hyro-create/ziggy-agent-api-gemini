@@ -53,12 +53,11 @@ jobs:
             pyinstaller --noconfirm --clean --onefile --name Ziggy $py.FullName
           }
 
-      - name: Publier le fichier EXE
+      
+      - name: Publier Ziggy complet
         uses: actions/upload-artifact@v4
         with:
           name: Ziggy-Windows
-          path: |
-            Ziggy/dist/**/*.exe
-            Ziggy/dist/*.exe
+          path: Ziggy/dist/
           if-no-files-found: error
 
